@@ -258,8 +258,11 @@ do_open(ErlNifEnv *env, esqlite_connection *db, const ERL_NIF_TERM arg)
         return make_error_tuple(env, "invalid_filename");
 
     /* Open the database.
+     * Pass SQLITE_OPEN_FULLMUTEX to ensure that the db is in serialized mode.
+     * https://www.sqlite.org/c3ref/open.html
+     * https://stackoverflow.com/a/35805826
      */
-    rc = sqlite3_open(filename, &db->db);
+    rc = sqlite3_open_v2(filename, &db->db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_FULLMUTEX, NULL);
     if(rc != SQLITE_OK) {
 	    error = make_sqlite3_error_tuple(env, rc, db->db);
 	    sqlite3_close_v2(db->db);
@@ -989,7 +992,7 @@ esqlite_get_autocommit(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
     cmd->ref = enif_make_copy(cmd->env, argv[1]);
     cmd->pid = pid;
 
-    return push_command(env, db, cmd);   
+    return push_command(env, db, cmd);
 }
 
 /*
