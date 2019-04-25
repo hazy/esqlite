@@ -236,7 +236,7 @@ try_multi_step(_Statement, _ChunkSize, _Rest, Tries) when Tries > 5 ->
 try_multi_step(Statement, ChunkSize, Rest, Tries) ->
     case multi_step(Statement, ChunkSize) of
         {'$busy', Rows} -> %% core can fetch a number of rows (rows < ChunkSize) per 'multi_step' call and then get busy...
-            erlang:display({"busy", Tries}),
+            %% erlang:display({"busy", Tries}),
             timer:sleep(100 * Tries),
             try_multi_step(Statement, ChunkSize, Rows ++ Rest, Tries + 1);
         {rows, Rows} ->
